@@ -6,7 +6,9 @@ import gift.product.dto.ProductRequestDto;
 import gift.product.dto.ProductResponseDto;
 import gift.product.entity.Product;
 import gift.product.repository.ProductRepository;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
@@ -20,11 +22,11 @@ public class ProductService {
   }
 
   private Product findProductByIdOrFail(Long id) {
-    Product product = productRepository.findById(id);
-    if (product == null) {
+    Optional<Product> product = productRepository.findById(id);
+    if (product.isEmpty()) {
       throw new ProductNotFoundException();
     }
-    return product;
+    return product.get();
   }
 
   public ProductResponseDto findProductById(Long productId) {
@@ -33,22 +35,18 @@ public class ProductService {
   }
 
   public ProductResponseDto saveProduct(ProductRequestDto dto) {
-    Product product = productRepository.saveProduct(dto.name(), dto.price(), dto.imageUrl());
-    validateKaKaoApproval(product.getId());
-    return ProductResponseDto.from(product);
+    Product product = new Product(dto.name(),dto.price(),dto.imageUrl());
+    Product savedProduct = productRepository.save(product);
+    validateKaKaoApproval(savedProduct.getId());
+    return ProductResponseDto.from(savedProduct);
   }
 
   public ProductResponseDto updateProduct(Long productId, ProductRequestDto dto) {
-    Product updatedProduct = productRepository.updateProduct(productId, dto.name(), dto.price(),
+    Product product = findProductByIdOrFail(productId);
+    Product updatedProduct = new Product(productId, dto.name(), dto.price(),
         dto.imageUrl());
-    return ProductResponseDto.from(updatedProduct);
-  }
-
-  //가격만 수정하는 것은 꽤 합리적이라고 생각
-  public ProductResponseDto updateProductPrice(Long productId, int price) {
-
-    Product updatedProduct = productRepository.updatePrice(productId, price);
-    return ProductResponseDto.from(updatedProduct);
+    Product savedProduct = productRepository.save(updatedProduct);
+    return ProductResponseDto.from(savedProduct);
   }
 
   public void deleteProduct(Long productId) {
@@ -57,11 +55,15 @@ public class ProductService {
   }
 
   public List<ProductResponseDto> findAllProducts() {
-    return
-        productRepository.findAllProducts()
-            .stream()
-            .map(ProductResponseDto::from)
-            .collect(Collectors.toList());
+    List<Product> products = productRepository.findAll();
+    List<ProductResponseDto> productResponseDtos = new ArrayList<>();
+
+    for (Product product : products) {
+      ProductResponseDto productResponseDto = ProductResponseDto.from(product);
+      productResponseDtos.add(productResponseDto);
+    }
+
+    return productResponseDtos;
   }
 
   private void validateKaKaoApproval(Long productId) {
