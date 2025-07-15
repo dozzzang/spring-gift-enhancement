@@ -2,11 +2,13 @@ package gift.wish.entity;
 
 import gift.product.entity.Product;
 import gift.user.entity.User;
+import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 
+@Entity
 public class Wish {
 
   @Id
