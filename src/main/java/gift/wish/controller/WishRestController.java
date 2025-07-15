@@ -2,7 +2,7 @@ package gift.wish.controller;
 
 import gift.product.dto.ProductResponseDto;
 import gift.security.LoginUser;
-import gift.user.domain.User;
+import gift.user.entity.User;
 import gift.wish.dto.WishRequestDto;
 import gift.wish.dto.WishResponseDto;
 import gift.wish.service.WishService;

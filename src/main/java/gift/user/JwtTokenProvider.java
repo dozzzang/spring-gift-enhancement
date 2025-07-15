@@ -1,6 +1,6 @@
 package gift.user;
 
-import gift.user.domain.User;
+import gift.user.entity.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;

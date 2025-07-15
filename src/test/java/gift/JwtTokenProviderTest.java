@@ -3,8 +3,8 @@ package gift;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import gift.user.JwtTokenProvider;
-import gift.user.domain.Role;
-import gift.user.domain.User;
+import gift.user.entity.Role;
+import gift.user.entity.User;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import java.util.Date;
