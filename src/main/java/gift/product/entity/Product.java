@@ -30,8 +30,7 @@ public class Product {
     this.imageUrl = imageUrl;
   }
 
-  public Product(Long id, String name, int price, String imageUrl,boolean kakaoApproval) {
-    this.id = id;
+  public Product(String name, int price, String imageUrl,boolean kakaoApproval) {
     this.name = name;
     this.price = price;
     this.imageUrl = imageUrl;
