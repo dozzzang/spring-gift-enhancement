@@ -18,7 +18,7 @@ public class PasswordEncodeTest {
       User user = new User(1L,email,passwordEncoder.encrypt(email,originalPassword), Role.USER);
 
       //then
-      assertThat(originalPassword).isEqualTo(user.getEncodedPassword());
+      assertThat(passwordEncoder.encrypt(email,originalPassword)).isEqualTo(user.getEncodedPassword());
     }
 
 
