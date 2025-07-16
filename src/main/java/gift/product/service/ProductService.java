@@ -8,8 +8,6 @@ import gift.product.entity.Product;
 import gift.product.repository.ProductRepository;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -22,11 +20,8 @@ public class ProductService {
   }
 
   private Product findProductByIdOrFail(Long id) {
-    Optional<Product> product = productRepository.findById(id);
-    if (product.isEmpty()) {
-      throw new ProductNotFoundException();
-    }
-    return product.get();
+     Product product = productRepository.findById(id).orElseThrow(ProductNotFoundException::new);
+     return product;
   }
 
   public ProductResponseDto findProductById(Long productId) {

@@ -14,6 +14,7 @@ import gift.user.dto.RegisterResponseDto;
 import gift.user.dto.UserRequestDto;
 import gift.user.dto.UserResponseDto;
 import gift.user.repository.UserRepository;
+import io.jsonwebtoken.JwtException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -35,13 +36,8 @@ public class UserService {
   }
 
   private User findByIdOrFail(Long id) {
-    Optional<User> user = userRepository.findById(id);
-
-    if (user.isEmpty()) {
-      throw new UserNotFoundException();
-    }
-
-    return user.get();
+    User user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
+    return user;
   }
 
   public RegisterResponseDto registerUser(RegisterRequestDto registerRequestDto) {
@@ -56,17 +52,14 @@ public class UserService {
   }
 
   public LoginResponseDto loginUser(LoginRequestDto loginRequestDto) {
-    Optional<User> user = userRepository.findByEmail(loginRequestDto.email());
+    User user = userRepository.findByEmail(loginRequestDto.email())
+        .orElseThrow(UserNotFoundException::new);
 
-    if (user.isEmpty()) {
-      throw new UserNotFoundException();
-    }
-
-    if (!user.get().isEqualPassword(loginRequestDto.password(), passwordEncoder)) {
+    if (!user.isEqualPassword(loginRequestDto.password(), passwordEncoder)) {
       throw new InvalidLoginException();
     }
 
-    String token = jwtTokenProvider.generateToken(user.get());
+    String token = jwtTokenProvider.generateToken(user);
 
     return new LoginResponseDto(token);
   }
@@ -113,17 +106,12 @@ public class UserService {
     findByIdOrFail(userId);
     userRepository.deleteById(userId);
   }
-
+//TODO : 예외 처리 수정 필요
   public User findUserByToken(String token) {
     try {
       String email = jwtTokenProvider.getEmail(token);
-      Optional<User> user = userRepository.findByEmail(email);
-
-      if (user.isEmpty()) {
-        throw new UserNotFoundException();
-      }
-
-      return user.get();
+      User user = userRepository.findByEmail(email).orElseThrow(UserNotFoundException::new);
+      return user;
     } catch (Exception e) {
       throw new UnAuthorizationException(ErrorCode.INVALID_JWT);
     }

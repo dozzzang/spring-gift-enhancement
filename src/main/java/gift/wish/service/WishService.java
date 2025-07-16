@@ -2,6 +2,9 @@ package gift.wish.service;
 
 import gift.exception.BusinessException;
 import gift.exception.ErrorCode;
+import gift.exception.ProductNotFoundException;
+import gift.exception.UserNotFoundException;
+import gift.exception.WishNotFoundException;
 import gift.product.dto.ProductResponseDto;
 import gift.product.entity.Product;
 import gift.product.repository.ProductRepository;
@@ -31,19 +34,14 @@ public class WishService {
   }
 
   private User findUserByIdOrFail(Long userId) {
-    Optional<User> userOptional = userRepository.findById(userId);
-    if (userOptional.isEmpty()) {
-      throw new BusinessException(ErrorCode.USER_NOT_FOUND);
-    }
-    return userOptional.get();
+    User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+    return user;
   }
 
   private Product findProductByIdOrFail(Long productId) {
-    Optional<Product> productOptional = productRepository.findById(productId);
-    if (productOptional.isEmpty()) {
-      throw new BusinessException(ErrorCode.PRODUCT_NOT_FOUND);
-    }
-    return productOptional.get();
+    Product product = productRepository.findById(productId)
+        .orElseThrow(ProductNotFoundException::new);
+    return product;
   }
 
 
@@ -88,12 +86,8 @@ public class WishService {
   }
 
   public void deleteWish(Long userId, Long productId) {
-    Optional<Wish> wish = wishRepository.findByUserIdAndProductId(userId, productId);
-
-    if (wish.isEmpty()) {
-      throw new BusinessException(ErrorCode.WISH_NOT_FOUND);
-    }
-
+    wishRepository.findByUserIdAndProductId(userId, productId).orElseThrow(
+        WishNotFoundException::new);
     wishRepository.deleteByUserIdAndProductId(userId, productId);
   }
 }
