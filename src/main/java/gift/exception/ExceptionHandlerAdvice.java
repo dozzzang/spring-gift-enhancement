@@ -44,4 +44,12 @@ public class ExceptionHandlerAdvice {
     return ResponseEntity.status(ex.getErrorCode().getStatus()).body(errorResponse);
   }
 
+  @ExceptionHandler(InternalServerException.class)
+  public ResponseEntity<ErrorResponse> handleInternalServerException(InternalServerException ex) {
+
+    ErrorResponse errorResponse = ErrorResponse.of(ex.getErrorCode());
+
+    return ResponseEntity.status(ex.getErrorCode().getStatus()).body(errorResponse);
+  }
+
 }

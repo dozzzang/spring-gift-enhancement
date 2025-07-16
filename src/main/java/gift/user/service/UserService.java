@@ -106,15 +106,11 @@ public class UserService {
     findByIdOrFail(userId);
     userRepository.deleteById(userId);
   }
-//TODO : 예외 처리 수정 필요
+
   public User findUserByToken(String token) {
-    try {
       String email = jwtTokenProvider.getEmail(token);
       User user = userRepository.findByEmail(email).orElseThrow(UserNotFoundException::new);
       return user;
-    } catch (Exception e) {
-      throw new UnAuthorizationException(ErrorCode.INVALID_JWT);
-    }
   }
 
 
