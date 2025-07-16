@@ -8,6 +8,7 @@ import gift.product.entity.Product;
 import gift.product.repository.ProductRepository;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -50,15 +51,9 @@ public class ProductService {
   }
 
   public List<ProductResponseDto> findAllProducts() {
-    List<Product> products = productRepository.findAll();
-    List<ProductResponseDto> productResponseDtos = new ArrayList<>();
-
-    for (Product product : products) {
-      ProductResponseDto productResponseDto = ProductResponseDto.from(product);
-      productResponseDtos.add(productResponseDto);
-    }
-
-    return productResponseDtos;
+    return productRepository.findAll().stream()
+        .map(ProductResponseDto::from)
+        .collect(Collectors.toList());
   }
 
   private void validateKaKaoApproval(Long productId) {

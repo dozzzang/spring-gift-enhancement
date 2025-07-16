@@ -65,14 +65,9 @@ public class UserService {
   }
 
   public List<UserResponseDto> findAllUsers() {
-    Iterable<User> users = userRepository.findAll();
-    List<UserResponseDto> userResponseDtos = new ArrayList<>();
-
-    for (User user : users) {
-      UserResponseDto userResponseDto = UserResponseDto.from(user);
-      userResponseDtos.add(userResponseDto);
-    }
-    return userResponseDtos;
+    return userRepository.findAll().stream()
+        .map(UserResponseDto::from)
+        .collect(Collectors.toList());
   }
 
   public UserResponseDto saveUser(UserRequestDto dto) {

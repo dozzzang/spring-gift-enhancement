@@ -17,6 +17,7 @@ import gift.wish.repository.WishRepository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -66,24 +67,12 @@ public class WishService {
   }
 
   public List<ProductResponseDto> getWishes(Long userId) {
-    List<Wish> wishes = wishRepository.findByUserId(userId);
-    List<ProductResponseDto> productResponseDtos = new ArrayList<>();
-
-    for (Wish wish : wishes) {
-      Product product = wish.getProduct();
-      ProductResponseDto productResponseDto = new ProductResponseDto(
-          product.getId(),
-          product.getName(),
-          product.getPrice(),
-          product.getImageUrl(),
-          product.isKakaoApproval()
-      );
-      productResponseDtos.add(productResponseDto);
-    }
-
-    return productResponseDtos;
-
+    return wishRepository.findByUserId(userId).stream()
+        .map(wish -> wish.getProduct())
+        .map(ProductResponseDto::from)
+        .collect(Collectors.toList());
   }
+
 
   public void deleteWish(Long userId, Long productId) {
     wishRepository.findByUserIdAndProductId(userId, productId).orElseThrow(
