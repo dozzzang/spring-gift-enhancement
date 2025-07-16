@@ -19,6 +19,19 @@ public class User {
   private String email;
   @Column(nullable = false)
   private Role role = Role.USER;
+
+  public void setEmail(String email) {
+    this.email = email;
+  }
+
+  public void setRole(Role role) {
+    this.role = role;
+  }
+
+  public void setEncodedPassword(String encodedPassword) {
+    this.encodedPassword = encodedPassword;
+  }
+
   @Column(nullable = false)
   private String encodedPassword;
 

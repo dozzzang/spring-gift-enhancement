@@ -23,6 +23,18 @@ public class Product {
   @Column(nullable = false)
   private boolean kakaoApproval = false;
 
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public void setPrice(int price) {
+    this.price = price;
+  }
+
+  public void setImageUrl(String imageUrl) {
+    this.imageUrl = imageUrl;
+  }
+
   public Product(Long id, String name, int price, String imageUrl) {
     this.id = id;
     this.name = name;

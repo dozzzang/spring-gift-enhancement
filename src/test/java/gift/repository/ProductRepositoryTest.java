@@ -9,12 +9,17 @@ import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.transaction.annotation.Transactional;
 
 @DataJpaTest
 public class ProductRepositoryTest {
 
   @Autowired
   private ProductRepository productRepository;
+
+  @Autowired
+  private TestEntityManager entityManager;
 
   @Test
   void save() {
@@ -65,18 +70,24 @@ public class ProductRepositoryTest {
     List<Product> allProducts = productRepository.findAll();
     assertThat(allProducts.size()).isEqualTo(2);
   }
+
   @Test
+  @Transactional
   void updateProduct() {
     Product savedProduct = productRepository.save(new Product("product", 10000, "thisisurl.com"));
     Long savedId = savedProduct.getId();
 
-    Product updatedProduct = new Product(savedId, "updatedProduct", 20000, "updateurl.com");
-    Product result = productRepository.save(updatedProduct);
+    savedProduct.setName("updatedProduct");
+    savedProduct.setPrice(20000);
+    savedProduct.setImageUrl("updateurl.com");
 
-    assertThat(result.getId()).isEqualTo(savedId);
-    assertThat(result.getName()).isEqualTo(updatedProduct.getName());
-    assertThat(result.getPrice()).isEqualTo(updatedProduct.getPrice());
-    assertThat(result.getImageUrl()).isEqualTo(updatedProduct.getImageUrl());
+    entityManager.flush();
+    entityManager.clear();
+
+    Product result = productRepository.findById(savedId).orElseThrow();
+    assertThat(result.getName()).isEqualTo("updatedProduct");
+    assertThat(result.getPrice()).isEqualTo(20000);
+    assertThat(result.getImageUrl()).isEqualTo("updateurl.com");
   }
 
   @Test

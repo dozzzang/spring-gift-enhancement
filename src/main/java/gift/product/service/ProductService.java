@@ -6,10 +6,10 @@ import gift.product.dto.ProductRequestDto;
 import gift.product.dto.ProductResponseDto;
 import gift.product.entity.Product;
 import gift.product.repository.ProductRepository;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ProductService {
@@ -37,12 +37,15 @@ public class ProductService {
     return ProductResponseDto.from(savedProduct);
   }
 
+  @Transactional
   public ProductResponseDto updateProduct(Long productId, ProductRequestDto dto) {
     Product product = findProductByIdOrFail(productId);
-    Product updatedProduct = new Product(productId, dto.name(), dto.price(),
-        dto.imageUrl());
-    Product savedProduct = productRepository.save(updatedProduct);
-    return ProductResponseDto.from(savedProduct);
+
+    product.setName(dto.name());
+    product.setPrice(dto.price());
+    product.setImageUrl(dto.imageUrl());
+
+    return ProductResponseDto.from(product);
   }
 
   public void deleteProduct(Long productId) {

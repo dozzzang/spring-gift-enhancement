@@ -2,18 +2,24 @@ package gift.repository;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
+import gift.product.entity.Product;
 import gift.user.entity.User;
 import gift.user.repository.UserRepository;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.transaction.annotation.Transactional;
 
 @DataJpaTest
 public class UserRepositoryTest {
 
   @Autowired
   private UserRepository userRepository;
+
+  @Autowired
+  private TestEntityManager entityManager;
 
   @Test
   void save() {
@@ -23,6 +29,23 @@ public class UserRepositoryTest {
     assertThat(actual.getId()).isNotNull();
     assertThat(actual.getEmail()).isEqualTo(expected.getEmail());
     assertThat(actual.getEncodedPassword()).isEqualTo(expected.getEncodedPassword());
+  }
+
+  @Test
+  @Transactional
+  void updateUser() {
+    User savedUser = userRepository.save(new User("user@user.com", "password"));
+    Long savedId = savedUser.getId();
+
+    savedUser.setEmail("updatedUser@user.com");
+    savedUser.setEncodedPassword("updatedPassword");
+
+    entityManager.flush();
+    entityManager.clear();
+
+    User result = userRepository.findById(savedId).orElseThrow();
+    assertThat(result.getEmail()).isEqualTo("updatedUser@user.com");
+    assertThat(result.getEncodedPassword()).isEqualTo("updatedPassword");
   }
 
   @Test
