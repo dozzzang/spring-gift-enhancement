@@ -5,6 +5,7 @@ import gift.exception.ErrorCode;
 import gift.exception.ProductNotFoundException;
 import gift.exception.UserNotFoundException;
 import gift.exception.WishNotFoundException;
+import gift.product.dto.PageRequestDto;
 import gift.product.dto.ProductResponseDto;
 import gift.product.entity.Product;
 import gift.product.repository.ProductRepository;
@@ -18,6 +19,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -71,6 +77,14 @@ public class WishService {
         .map(wish -> wish.getProduct())
         .map(ProductResponseDto::from)
         .collect(Collectors.toList());
+  }
+
+  public Page<ProductResponseDto> getWishes(Long userId, PageRequestDto pageRequestDto) {
+    Sort sortCondition = Sort.by(Direction.DESC,pageRequestDto.sort());
+    Pageable pageable = PageRequest.of(pageRequestDto.page(), pageRequestDto.size(),sortCondition);
+
+    Page<Wish> wishes = wishRepository.findByUserId(userId, pageable);
+    return wishes.map(wish -> ProductResponseDto.from(wish.getProduct()));
   }
 
 
