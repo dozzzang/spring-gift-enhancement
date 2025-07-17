@@ -1,9 +1,11 @@
 package gift.product.controller;
 
+import gift.product.dto.PageRequestDto;
 import gift.product.dto.ProductRequestDto;
 import gift.product.dto.ProductResponseDto;
 import gift.product.service.ProductService;
 import java.util.List;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,8 +23,13 @@ public class ProductViewController {
   }
 
   @GetMapping("/")
-  public String index(Model model) {
-    List<ProductResponseDto> products = productService.findAllProducts();
+  public String index(
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "7")int size,
+      @RequestParam(defaultValue = "name") String sort,
+      Model model) {
+    PageRequestDto pageRequestDto = new PageRequestDto(page, size, sort);
+    Page<ProductResponseDto> products = productService.findAllProducts(pageRequestDto);
     model.addAttribute("products", products);
     return "product/index";
   }

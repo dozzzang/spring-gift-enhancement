@@ -2,12 +2,16 @@ package gift.product.service;
 
 import gift.exception.KakaoApprovalException;
 import gift.exception.ProductNotFoundException;
+import gift.product.dto.PageRequestDto;
 import gift.product.dto.ProductRequestDto;
 import gift.product.dto.ProductResponseDto;
 import gift.product.entity.Product;
 import gift.product.repository.ProductRepository;
-import java.util.List;
-import java.util.stream.Collectors;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,10 +57,13 @@ public class ProductService {
     productRepository.deleteById(productId);
   }
 
-  public List<ProductResponseDto> findAllProducts() {
-    return productRepository.findAll().stream()
-        .map(ProductResponseDto::from)
-        .collect(Collectors.toList());
+  public Page<ProductResponseDto> findAllProducts(PageRequestDto pageRequestDto) {
+    Sort sortCondition = Sort.by(Direction.DESC, pageRequestDto.sort());
+    Pageable pageable = PageRequest.of(pageRequestDto.page(), pageRequestDto.size(), sortCondition);
+
+    Page<Product> products = productRepository.findAll(pageable);
+
+    return products.map(ProductResponseDto::from);
   }
 
   private void validateKaKaoApproval(Long productId) {
