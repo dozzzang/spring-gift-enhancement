@@ -12,6 +12,8 @@ import gift.product.controller.ProductApiController;
 import gift.product.dto.ProductRequestDto;
 import gift.product.dto.ProductResponseDto;
 import gift.product.service.ProductService;
+import gift.security.AdminInterceptor;
+import gift.user.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -29,6 +31,12 @@ public class ProductControllerTest {
 
   @MockitoBean
   private ProductService productService;
+
+  @MockitoBean
+  private UserService userService;
+
+  @MockitoBean
+  private AdminInterceptor adminInterceptor;
 
   @Test
   void 모든_조건_만족_정상실행() throws Exception {

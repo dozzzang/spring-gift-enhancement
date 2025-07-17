@@ -18,7 +18,11 @@ public enum ErrorCode {
   PRODUCT_NOT_FOUND("PRODUCT_NOT_FOUND","존재하지 않는 상품입니다.",HttpStatus.NOT_FOUND),
   WISH_NOT_FOUND("WISH_NOT_FOUND","위시리스트가 존재하지 않습니다.",HttpStatus.NOT_FOUND),
 
-  INVALID_JWT("INVALID_JWT","유효하지 않은 토큰입니다.",HttpStatus.UNAUTHORIZED);
+  WISH_ALREADY_EXISTED("WISH_ALREADY_EXISTED","위시리스트가 이미 존재합니다.",HttpStatus.BAD_REQUEST),
+
+  INVALID_JWT("INVALID_JWT","유효하지 않은 토큰입니다.",HttpStatus.UNAUTHORIZED),
+
+  INTERNAL_SERVER_ERROR("INTERNAL_SERVER_ERROR","내부 서버에서 오류가 발생하였습니다.",HttpStatus.INTERNAL_SERVER_ERROR);
 
   private final String code;
   private final String message;

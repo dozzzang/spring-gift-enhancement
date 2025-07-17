@@ -1,5 +1,7 @@
 package gift.security;
 
+import gift.exception.InternalServerException;
+import gift.exception.UnAuthorizationException;
 import gift.user.JwtTokenProvider;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -22,12 +24,11 @@ public class AdminInterceptor implements HandlerInterceptor {
 
     String token = req.getHeader("Authorization");
 
-
     if (token != null && token.startsWith("Bearer ")) {
       token = token.substring(7);
     }
 
-    if(isValidAdminToken(token)) {
+    if (isValidAdminToken(token)) {
       return true;
     }
 
@@ -42,13 +43,8 @@ public class AdminInterceptor implements HandlerInterceptor {
   }
 
   private boolean isValidAdminToken(String token) throws Exception {
-    try {
-      jwtTokenProvider.validateToken(token);
-      String role = jwtTokenProvider.getRole(token);
-      return role.equals("ADMIN");
-    }
-    catch (Exception e) {
-      throw new Exception(e.getMessage());
-    }
+    jwtTokenProvider.validateToken(token);
+    String role = jwtTokenProvider.getRole(token);
+    return role.equals("ADMIN");
   }
 }

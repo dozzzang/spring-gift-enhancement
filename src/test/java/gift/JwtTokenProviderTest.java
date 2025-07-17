@@ -1,10 +1,13 @@
 package gift;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import gift.exception.InternalServerException;
+import gift.exception.UnAuthorizationException;
 import gift.user.JwtTokenProvider;
-import gift.user.domain.Role;
-import gift.user.domain.User;
+import gift.user.entity.Role;
+import gift.user.entity.User;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import java.util.Date;
@@ -17,7 +20,6 @@ class JwtTokenProviderTest {
     String secretKey = "Yn2kjibddFAWtnPJ2AFlL8WXmohJMCvigQggaEypa5E=";
     SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes());
 
-    //TODO : 30분이 아닌 1시간으로 setting
     Date expiredTime = new Date(System.currentTimeMillis() - 60 * 60 * 1000);
 
     return Jwts.builder()
@@ -58,131 +60,128 @@ class JwtTokenProviderTest {
     assertThat(token).isNotEmpty();
   }
 
-
   @Test
   void 만료된_토큰() {
     //given
     JwtTokenProvider jwtTokenProvider = new JwtTokenProvider();
     String token = createExpiredToken();
 
-    try {
-      jwtTokenProvider.validateToken(token);
-    } catch (Exception e) {
-      String errorMessage = e.getMessage();
-      assertThat(errorMessage).contains("만료된 토큰입니다");
-    }
+    assertThrows(UnAuthorizationException.class,
+        () -> jwtTokenProvider.validateToken(token));
   }
 
   @Test
-  void 잘못된_서명_SignatureException() {
-    //given
+  void 잘못된_서명_토큰_검증_실패() {
+    // given
     JwtTokenProvider jwtTokenProvider = new JwtTokenProvider();
     String token = createWrongSignatureToken();
 
-    try {
-      jwtTokenProvider.validateToken(token);
-    } catch (Exception e) {
-      String errorMessage = e.getMessage();
-      assertThat(errorMessage).contains("유효하지 않은 토큰 서명입니다.");
-    }
+    assertThrows(UnAuthorizationException.class,
+        () -> jwtTokenProvider.validateToken(token));
   }
 
   @Test
-  void 잘못된_형식_MalformedJwtException() {
-    //given
+  void 잘못된_형식_토큰_검증_실패() {
+    // given
     JwtTokenProvider jwtTokenProvider = new JwtTokenProvider();
-    String token = "not_allowed_format";
+    String token = "wrongFormatToken";
 
-    try {
-      jwtTokenProvider.validateToken(token);
-    } catch (Exception e) {
-      String errorMessage = e.getMessage();
-      assertThat(errorMessage).contains("올바르지 않은 토큰 형식입니다.");
-    }
+    assertThrows(UnAuthorizationException.class,
+        () -> jwtTokenProvider.validateToken(token));
   }
 
   @Test
-  void 만료된_토큰_JwtException() {
-    //given
-    JwtTokenProvider jwtTokenProvider = new JwtTokenProvider();
-    String token = createExpiredToken();
-
-    try {
-      jwtTokenProvider.validateToken(token);
-    } catch (Exception e) {
-      String errorMessage = e.getMessage();
-      assertThat(errorMessage).contains("만료된 토큰입니다.");
-    }
-  }
-
-  @Test
-  void 기타예외_토큰이_null인경우_IllegalArgumentException() {
+  void null_토큰_검증_실패() {
     // given
     JwtTokenProvider jwtTokenProvider = new JwtTokenProvider();
     String token = null;
 
-    try {
-      jwtTokenProvider.validateToken(token);
-    } catch (Exception e) {
-      String errorMessage = e.getMessage();
-      assertThat(errorMessage).contains("토큰 검증 중 서버 오류가 발생하였습니다");
-    }
+    assertThrows(InternalServerException.class,
+        () -> jwtTokenProvider.validateToken(token));
   }
 
   @Test
-  void 유효한토큰_role추출_성공() throws Exception {
-    //given
+  void 유효한_토큰에서_role_추출_성공() {
+    // given
     JwtTokenProvider jwtTokenProvider = new JwtTokenProvider();
     User testUser = new User(1L, "admin@admin.com", "password", Role.ADMIN);
     String token = jwtTokenProvider.generateToken(testUser);
 
-    //when
     String role = jwtTokenProvider.getRole(token);
 
-    //then
     assertThat(role).isEqualTo("ADMIN");
   }
 
   @Test
-  void 잘못된서명_토큰에서_role추출_JwtException() {
-    //given
+  void 유효한_토큰에서_email_추출_성공() {
+    // given
     JwtTokenProvider jwtTokenProvider = new JwtTokenProvider();
-    String token = createWrongSignatureToken();
+    User testUser = new User(1L, "admin@admin.com", "password", Role.ADMIN);
+    String token = jwtTokenProvider.generateToken(testUser);
 
-    try {
-      jwtTokenProvider.getRole(token);
-    } catch (Exception e) {
-      String errorMessage = e.getMessage();
-      assertThat(errorMessage).contains("유효하지 않은 토큰입니다");
-    }
+    String email = jwtTokenProvider.getEmail(token);
+
+    assertThat(email).isEqualTo("admin@admin.com");
   }
 
   @Test
-  void null_토큰에서_role추출_IllegalArgumentException() {
+  void 잘못된_서명_토큰에서_role_추출_실패() {
+    // given
+    JwtTokenProvider jwtTokenProvider = new JwtTokenProvider();
+    String token = createWrongSignatureToken();
+
+    assertThrows(UnAuthorizationException.class,
+        () -> jwtTokenProvider.getRole(token));
+  }
+
+  @Test
+  void 만료된_토큰에서_role_추출_실패() {
+    // given
+    JwtTokenProvider jwtTokenProvider = new JwtTokenProvider();
+    String token = createExpiredToken();
+
+
+    assertThrows(UnAuthorizationException.class,
+        () -> jwtTokenProvider.getRole(token));
+  }
+
+  @Test
+  void null_토큰에서_role_추출_실패() {
     // given
     JwtTokenProvider jwtTokenProvider = new JwtTokenProvider();
     String token = null;
 
-    try {
-      jwtTokenProvider.getRole(token);
-    } catch (Exception e) {
-      String errorMessage = e.getMessage();
-      assertThat(errorMessage).contains("토큰이 null이거나 빈 문자열입니다");
-    }
+    assertThrows(UnAuthorizationException.class,
+        () -> jwtTokenProvider.getRole(token));
   }
 
   @Test
-  void 빈문자열_토큰에서_IllegalArgumentException() {
+  void 빈문자열_토큰에서_role_추출_실패() {
     // given
     JwtTokenProvider jwtTokenProvider = new JwtTokenProvider();
     String token = "";
 
-    try {
-      jwtTokenProvider.getRole(token);
-    } catch (Exception e) {
-      String errorMessage = e.getMessage();
-      assertThat(errorMessage).contains("토큰이 null이거나 빈 문자열입니다");
-    }
+    assertThrows(UnAuthorizationException.class,
+        () -> jwtTokenProvider.getRole(token));
   }
 
+  @Test
+  void 잘못된_서명_토큰에서_email_추출_실패() {
+    // given
+    JwtTokenProvider jwtTokenProvider = new JwtTokenProvider();
+    String token = createWrongSignatureToken();
+
+    assertThrows(UnAuthorizationException.class,
+        () -> jwtTokenProvider.getEmail(token));
+  }
+
+  @Test
+  void null_토큰에서_email_추출_실패() {
+    // given
+    JwtTokenProvider jwtTokenProvider = new JwtTokenProvider();
+    String token = null;
+
+    assertThrows(UnAuthorizationException.class,
+        () -> jwtTokenProvider.getEmail(token));
+  }
 }

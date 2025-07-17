@@ -1,6 +1,9 @@
 package gift.user;
 
-import gift.user.domain.User;
+import gift.exception.ErrorCode;
+import gift.exception.InternalServerException;
+import gift.exception.UnAuthorizationException;
+import gift.user.entity.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
@@ -44,45 +47,36 @@ public class JwtTokenProvider {
     return new Date(System.currentTimeMillis() + EXPIRATION_MINUTES * 60 * 1000);
   }
 
-  public void validateToken(String token) throws Exception {
+  public void validateToken(String token) {
     try {
       jwtParser.parse(token);
-    } catch (ExpiredJwtException e) {
-      throw new Exception("만료된 토큰입니다.",e);
-    } catch (SignatureException e) {
-      throw new Exception("유효하지 않은 토큰 서명입니다.",e);
-    } catch (MalformedJwtException e) {
-      throw new Exception("올바르지 않은 토큰 형식입니다.", e);
-    } catch (SecurityException e) {
-      throw new Exception("보안을 만족하지 못한 토큰입니다.", e);
+    } catch (ExpiredJwtException | SignatureException | MalformedJwtException |
+             SecurityException e) {
+      throw new UnAuthorizationException(ErrorCode.INVALID_JWT);
     } catch (Exception e) {
-      throw new Exception("토큰 검증 중 서버 오류가 발생하였습니다.",e);
+      throw new InternalServerException(ErrorCode.INTERNAL_SERVER_ERROR);
     }
   }
 
-public String getRole(String token) throws Exception {
-  try {
-    Claims claims = jwtParser.parseSignedClaims(token).getPayload();
-    return claims.get("role", String.class);
-  } catch (JwtException e) {
-    throw new Exception("유효하지 않은 토큰입니다", e);
-  } catch (IllegalArgumentException e) {
-    throw new Exception("토큰이 null이거나 빈 문자열입니다", e);
-  } catch (Exception e) {
-    throw new Exception("토큰에서 role을 가져올 수 없습니다", e);
+  public String getRole(String token) {
+    try {
+      Claims claims = jwtParser.parseSignedClaims(token).getPayload();
+      return claims.get("role", String.class);
+    } catch (JwtException | IllegalArgumentException e) {
+      throw new UnAuthorizationException(ErrorCode.INVALID_JWT);
+    } catch (Exception e) {
+      throw new InternalServerException(ErrorCode.INTERNAL_SERVER_ERROR);
+    }
   }
-}
 
-  public String getEmail(String token) throws Exception {
+  public String getEmail(String token) {
     try {
       Claims claims = jwtParser.parseSignedClaims(token).getPayload();
       return claims.get("email", String.class);
-    } catch (JwtException e) {
-      throw new Exception("유효하지 않은 토큰입니다", e);
-    } catch (IllegalArgumentException e) {
-      throw new Exception("토큰이 null이거나 빈 문자열입니다", e);
+    } catch (JwtException | IllegalArgumentException e) {
+      throw new UnAuthorizationException(ErrorCode.INVALID_JWT);
     } catch (Exception e) {
-      throw new Exception("토큰에서 role을 가져올 수 없습니다", e);
+      throw new InternalServerException(ErrorCode.INTERNAL_SERVER_ERROR);
     }
   }
 

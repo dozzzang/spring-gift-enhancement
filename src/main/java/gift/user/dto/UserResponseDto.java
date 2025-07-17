@@ -1,6 +1,6 @@
 package gift.user.dto;
 
-import gift.user.domain.User;
+import gift.user.entity.User;
 
 public record UserResponseDto(
     Long id,

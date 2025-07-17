@@ -2,8 +2,8 @@ package gift.security;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import gift.user.domain.Role;
-import gift.user.domain.User;
+import gift.user.entity.Role;
+import gift.user.entity.User;
 import org.junit.jupiter.api.Test;
 
 public class PasswordEncodeTest {
@@ -18,7 +18,7 @@ public class PasswordEncodeTest {
       User user = new User(1L,email,passwordEncoder.encrypt(email,originalPassword), Role.USER);
 
       //then
-      assertThat(originalPassword).isEqualTo(user.getEncodedPassword());
+      assertThat(passwordEncoder.encrypt(email,originalPassword)).isEqualTo(user.getEncodedPassword());
     }
 
 
