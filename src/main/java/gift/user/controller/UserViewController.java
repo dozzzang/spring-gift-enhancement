@@ -1,8 +1,11 @@
 package gift.user.controller;
 
 import gift.user.dto.LoginRequestDto;
+import gift.user.dto.LoginResponseDto;
 import gift.user.dto.RegisterRequestDto;
 import gift.user.service.UserService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,6 +32,21 @@ public class UserViewController {
     return "product/login";
   }
 
+  @GetMapping("/logout")
+  public String logout(HttpServletResponse response) {
+    Cookie emailCookie = new Cookie("email",null);
+    Cookie tokenCookie = new Cookie("token",null);
+
+    emailCookie.setMaxAge(0);
+    tokenCookie.setMaxAge(0);
+    emailCookie.setPath("/");
+    tokenCookie.setPath("/");
+    response.addCookie(emailCookie);
+    response.addCookie(tokenCookie);
+
+    return "redirect:/";
+  }
+
   @PostMapping("/register")
   public String Register(@RequestParam String email,
       @RequestParam String password) {
@@ -39,9 +57,21 @@ public class UserViewController {
 
   @PostMapping("/login")
   public String Login(@RequestParam String email,
-      @RequestParam String password) {
+      @RequestParam String password,
+      HttpServletResponse response) {
     LoginRequestDto dto = new LoginRequestDto(email, password);
-    userService.loginUser(dto);
+    LoginResponseDto loginResponse = userService.loginUser(dto);
+
+    Cookie emailCookie = new Cookie("email",email);
+    Cookie tokenCookie = new Cookie("token",loginResponse.token());
+
+    emailCookie.setMaxAge(1800);
+    tokenCookie.setMaxAge(1800);
+    emailCookie.setPath("/");
+    tokenCookie.setPath("/");
+    response.addCookie(emailCookie);
+    response.addCookie(tokenCookie);
+
     return "redirect:/";
   }
 

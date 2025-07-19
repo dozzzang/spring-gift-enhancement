@@ -4,6 +4,9 @@ import gift.product.dto.PageRequestDto;
 import gift.product.dto.ProductRequestDto;
 import gift.product.dto.ProductResponseDto;
 import gift.product.service.ProductService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import java.util.Arrays;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
@@ -27,7 +30,15 @@ public class ProductViewController {
       @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "7")int size,
       @RequestParam(defaultValue = "name") String sort,
-      Model model) {
+      Model model,
+      HttpServletRequest request) {
+
+    String token = getCookieValue(request, "token");
+    String email = getCookieValue(request, "email");
+
+    model.addAttribute("token", token);
+    model.addAttribute("email", email);
+
     PageRequestDto pageRequestDto = new PageRequestDto(page, size, sort);
     Page<ProductResponseDto> products = productService.findAllProducts(pageRequestDto);
     model.addAttribute("products", products);
@@ -78,5 +89,14 @@ public class ProductViewController {
   public String deleteProduct(@PathVariable Long id) {
     productService.deleteProduct(id);
     return "redirect:/";
+  }
+
+  private String getCookieValue(HttpServletRequest request, String cookieName) {
+    return request.getCookies() != null ?
+        Arrays.stream(request.getCookies())
+            .filter(cookie -> cookieName.equals(cookie.getName()))
+            .map(Cookie::getValue)
+            .findFirst()
+            .orElse(null) : null;
   }
 }
