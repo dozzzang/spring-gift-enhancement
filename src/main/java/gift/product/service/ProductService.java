@@ -36,8 +36,12 @@ public class ProductService {
 
   public ProductResponseDto saveProduct(ProductRequestDto dto) {
     Product product = new Product(dto.name(),dto.price(),dto.imageUrl());
+
+    if (product.getName().contains("카카오") && !product.isKakaoApproval()) {
+      throw new KakaoApprovalException();
+    }
+
     Product savedProduct = productRepository.save(product);
-    validateKaKaoApproval(savedProduct.getId());
     return ProductResponseDto.from(savedProduct);
   }
 
