@@ -8,7 +8,6 @@ import gift.user.entity.User;
 import gift.user.dto.LoginRequestDto;
 import gift.user.dto.LoginResponseDto;
 import gift.user.dto.RegisterRequestDto;
-import gift.user.dto.RegisterResponseDto;
 import gift.user.dto.UserRequestDto;
 import gift.user.dto.UserResponseDto;
 import gift.user.repository.UserRepository;
@@ -35,15 +34,11 @@ public class UserService {
     return user;
   }
 
-  public RegisterResponseDto registerUser(RegisterRequestDto registerRequestDto) {
+  public void registerUser(RegisterRequestDto registerRequestDto) {
     String encryptedPassword = passwordEncoder.encrypt(registerRequestDto.email(),
         registerRequestDto.password());
     User user = new User(registerRequestDto.email(), encryptedPassword);
-    User savedUser = userRepository.save(user);
-
-    String token = jwtTokenProvider.generateToken(user);
-
-    return new RegisterResponseDto(token);
+    userRepository.save(user);
   }
 
   public LoginResponseDto loginUser(LoginRequestDto loginRequestDto) {

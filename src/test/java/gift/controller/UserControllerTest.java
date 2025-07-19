@@ -1,6 +1,7 @@
 package gift.controller;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -13,7 +14,6 @@ import gift.user.controller.UserController;
 import gift.user.dto.LoginRequestDto;
 import gift.user.dto.LoginResponseDto;
 import gift.user.dto.RegisterRequestDto;
-import gift.user.dto.RegisterResponseDto;
 import gift.user.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,15 +50,12 @@ public class UserControllerTest {
         }
         """;
 
-    RegisterResponseDto mockResponse = new RegisterResponseDto("");
-
-    when(userService.registerUser(any(RegisterRequestDto.class))).thenReturn(mockResponse);
+    doNothing().when(userService).registerUser(any(RegisterRequestDto.class));
 
     mockMvc.perform(post("/api/users/register")
             .contentType(MediaType.APPLICATION_JSON)
             .content(requestBody))
-        .andExpect(status().isCreated())
-        .andExpect(jsonPath("$.token").value(""));
+        .andExpect(status().isCreated());
   }
 
   @Test
