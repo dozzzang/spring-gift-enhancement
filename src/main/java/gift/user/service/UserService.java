@@ -11,6 +11,7 @@ import gift.user.dto.RegisterRequestDto;
 import gift.user.dto.UserRequestDto;
 import gift.user.dto.UserResponseDto;
 import gift.user.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
@@ -72,6 +73,7 @@ public class UserService {
     return UserResponseDto.from(user);
   }
 
+  @Transactional
   public UserResponseDto updateUser(Long userId, UserRequestDto dto) {
     User user = findByIdOrFail(userId);
     String finalPassword;
