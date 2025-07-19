@@ -25,6 +25,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class WishService {
@@ -87,7 +88,7 @@ public class WishService {
     return wishes.map(wish -> ProductResponseDto.from(wish.getProduct()));
   }
 
-
+  @Transactional
   public void deleteWish(Long userId, Long productId) {
     wishRepository.findByUserIdAndProductId(userId, productId).orElseThrow(
         WishNotFoundException::new);
