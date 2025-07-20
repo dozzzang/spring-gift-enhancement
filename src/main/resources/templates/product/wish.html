@@ -2,7 +2,7 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
-  <title>상품</title>
+  <title>위시리스트</title>
   <style>
     body {
       font-family: "맑은 고딕", sans-serif;
@@ -79,11 +79,15 @@
   </style>
 </head>
 <body>
-<h1>상품</h1>
+<h1>위시리스트</h1>
+
+<div>
+  <a href="/wishlist/add" class="btn btn-success">위시리스트에 상품 추가</a>
+</div>
 
 <div class="header-buttons" th:if="${token}">
+  <a href="/" class="register-btn">홈으로</a>
   <a href="/users/mypage" class="register-btn">마이페이지</a>
-  <a href="/wishlist" class="register-btn">위시리스트</a>
   <a href="/api/admin" class="register-btn">관리자 페이지</a>
   <a href="/users/logout" class="register-btn">로그아웃</a>
 </div>
@@ -94,22 +98,18 @@
   <a href="/api/admin" class="register-btn">관리자 페이지</a>
 </div>
 
-<div>
-  <a href="products/new" class="btn btn-success">상품 추가</a>
-</div>
-
-<table th:if="${products != null && !products.isEmpty()}">
+<table th:if="${wishes != null && !wishes.isEmpty()}">
   <thead>
   <tr>
     <th>번호</th>
-    <th>이름</th>
+    <th>상품명</th>
     <th>가격</th>
     <th>이미지 주소</th>
     <th>관리</th>
   </tr>
   </thead>
   <tbody>
-  <tr th:each="product : ${products}">
+  <tr th:each="product : ${wishes}">
     <td th:text="${product.id()}">1</td>
     <td>
       <a th:href="@{/products/{id}(id=${product.id()})}"
@@ -119,35 +119,33 @@
     <td th:text="${#numbers.formatInteger(product.price(), 0, 'COMMA')}">1000</td>
     <td th:text="${product.imageUrl()}">https://example.com/image.jpg</td>
     <td>
-      <a th:href="@{/products/{id}(id=${product.id()})}" class="btn btn-primary">조회</a>
-      <a th:href="@{/products/{id}/update(id=${product.id()})}" class="btn btn-warning">수정</a>
-      <a th:href="@{/products/{id}/delete(id=${product.id()})}" class="btn btn-danger">삭제</a>
+      <a th:href="@{/products/{id}(id=${product.id()})}" class="btn btn-primary">상품 보기</a>
+      <a th:href="@{/wishlist/{id}/delete(id=${product.id()})}" class="btn btn-danger"
+         onclick="return confirm('위시리스트에서 삭제하시겠습니까?')">삭제</a>
     </td>
   </tr>
   </tbody>
 </table>
 
-<div th:if="${products == null || products.isEmpty()}" style="text-align: center; padding: 50px;">
-  <h3>등록된 상품이 없습니다.</h3>
-</div>
+
 
 <!-- 페이지네이션 -->
-<div class="pagination" th:if="${products != null && products.totalPages > 1}">
+<div class="pagination" th:if="${wishes != null && wishes.totalPages > 1}">
   <!-- 이전 페이지 -->
-  <a th:if="${products.hasPrevious()}"
-     th:href="@{/(page=${products.number - 1}, size=${products.size}, sort=${param.sort})}">&laquo; 이전</a>
+  <a th:if="${wishes.hasPrevious()}"
+     th:href="@{/wishlist(page=${wishes.number - 1}, size=${wishes.size}, sort=${param.sort})}">&laquo; 이전</a>
 
   <!-- 페이지 번호들 -->
-  <th:block th:each="i : ${#numbers.sequence(0, products.totalPages - 1)}">
-    <span th:if="${i == products.number}" class="current" th:text="${i + 1}">1</span>
-    <a th:if="${i != products.number}"
-       th:href="@{/(page=${i}, size=${products.size}, sort=${param.sort})}"
+  <th:block th:each="i : ${#numbers.sequence(0, wishes.totalPages - 1)}">
+    <span th:if="${i == wishes.number}" class="current" th:text="${i + 1}">1</span>
+    <a th:if="${i != wishes.number}"
+       th:href="@{/wishlist(page=${i}, size=${wishes.size}, sort=${param.sort})}"
        th:text="${i + 1}">1</a>
   </th:block>
 
   <!-- 다음 페이지 -->
-  <a th:if="${products.hasNext()}"
-     th:href="@{/(page=${products.number + 1}, size=${products.size}, sort=${param.sort})}">다음 &raquo;</a>
+  <a th:if="${wishes.hasNext()}"
+     th:href="@{/wishlist(page=${wishes.number + 1}, size=${wishes.size}, sort=${param.sort})}">다음 &raquo;</a>
 </div>
 
 </body>

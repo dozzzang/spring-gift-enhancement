@@ -8,10 +8,10 @@ import gift.user.entity.User;
 import gift.user.dto.LoginRequestDto;
 import gift.user.dto.LoginResponseDto;
 import gift.user.dto.RegisterRequestDto;
-import gift.user.dto.RegisterResponseDto;
 import gift.user.dto.UserRequestDto;
 import gift.user.dto.UserResponseDto;
 import gift.user.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
@@ -35,15 +35,11 @@ public class UserService {
     return user;
   }
 
-  public RegisterResponseDto registerUser(RegisterRequestDto registerRequestDto) {
+  public void registerUser(RegisterRequestDto registerRequestDto) {
     String encryptedPassword = passwordEncoder.encrypt(registerRequestDto.email(),
         registerRequestDto.password());
     User user = new User(registerRequestDto.email(), encryptedPassword);
-    User savedUser = userRepository.save(user);
-
-    String token = jwtTokenProvider.generateToken(user);
-
-    return new RegisterResponseDto(token);
+    userRepository.save(user);
   }
 
   public LoginResponseDto loginUser(LoginRequestDto loginRequestDto) {
@@ -77,6 +73,7 @@ public class UserService {
     return UserResponseDto.from(user);
   }
 
+  @Transactional
   public UserResponseDto updateUser(Long userId, UserRequestDto dto) {
     User user = findByIdOrFail(userId);
     String finalPassword;
