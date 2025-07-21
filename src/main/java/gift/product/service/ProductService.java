@@ -1,7 +1,10 @@
 package gift.product.service;
 
 import gift.exception.KakaoApprovalException;
+import gift.exception.OverlappingOptionNameException;
 import gift.exception.ProductNotFoundException;
+import gift.option.entity.Option;
+import gift.option.dto.OptionRequestDto;
 import gift.product.dto.PageRequestDto;
 import gift.product.dto.ProductRequestDto;
 import gift.product.dto.ProductResponseDto;
@@ -14,6 +17,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.HashSet;
+import java.util.Set;
 
 @Service
 public class ProductService {
@@ -25,8 +30,7 @@ public class ProductService {
   }
 
   private Product findProductByIdOrFail(Long id) {
-     Product product = productRepository.findById(id).orElseThrow(ProductNotFoundException::new);
-     return product;
+    return productRepository.findById(id).orElseThrow(ProductNotFoundException::new);
   }
 
   public ProductResponseDto findProductById(Long productId) {
@@ -34,24 +38,39 @@ public class ProductService {
     return ProductResponseDto.from(product);
   }
 
-  public ProductResponseDto saveProduct(ProductRequestDto dto) {
-    Product product = new Product(dto.name(),dto.price(),dto.imageUrl());
+  @Transactional
+  public ProductResponseDto saveProduct(ProductRequestDto productRequestDto) {
+    validateUniqueOptionNames(productRequestDto);
+
+    Product product = new Product(productRequestDto.name(), productRequestDto.price(), productRequestDto.imageUrl());
 
     if (product.getName().contains("카카오") && !product.isKakaoApproval()) {
       throw new KakaoApprovalException();
     }
+
+    productRequestDto.options().stream()
+        .map(optionRequest -> new Option(optionRequest.name(), optionRequest.quantity()))
+        .forEach(product::addOption);
 
     Product savedProduct = productRepository.save(product);
     return ProductResponseDto.from(savedProduct);
   }
 
   @Transactional
-  public ProductResponseDto updateProduct(Long productId, ProductRequestDto dto) {
+  public ProductResponseDto updateProduct(Long productId, ProductRequestDto productRequestDto) {
+
+    validateUniqueOptionNames(productRequestDto);
+
     Product product = findProductByIdOrFail(productId);
 
-    product.setName(dto.name());
-    product.setPrice(dto.price());
-    product.setImageUrl(dto.imageUrl());
+    product.setName(productRequestDto.name());
+    product.setPrice(productRequestDto.price());
+    product.setImageUrl(productRequestDto.imageUrl());
+
+    product.getOptions().clear();
+    productRequestDto.options().stream()
+        .map(optionRequest -> new Option(optionRequest.name(), optionRequest.quantity()))
+        .forEach(product::addOption);
 
     return ProductResponseDto.from(product);
   }
@@ -77,4 +96,15 @@ public class ProductService {
     }
   }
 
+  private void validateUniqueOptionNames(ProductRequestDto dto) {
+    long originalCount = dto.options().size();
+    long distinctCount = dto.options().stream()
+        .map(OptionRequestDto::name)
+        .distinct()
+        .count();
+
+    if (originalCount != distinctCount) {
+      throw new OverlappingOptionNameException();
+    }
+  }
 }
