@@ -90,4 +90,9 @@ public class Product {
   protected Product() {
 
   }
+
+  public void addOption(Option option) {
+    option.setProduct(this);
+    options.add(option);
+  }
 }

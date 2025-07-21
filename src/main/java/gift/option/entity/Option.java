@@ -26,14 +26,9 @@ public class Option {
   private Long id;
 
   @Column(name = "name", length = 50, nullable = false)
-  @Pattern(regexp = "^[가-힣a-zA-Z0-9\\s()\\[\\]\\+\\-&/_]*$",
-            message = "( ), [ ], +, -, &, /, _ 외 특수문자는 사용이 불가합니다.")
-  @Size(max = 50, message = "옵션명은 50자 이하여야 합니다.")
-  @NotBlank
   private String name;
+
   @Column(name = "quantity", nullable = false)
-  @Min(value = 1, message = "수량은 최소 1개입니다.")
-  @Max(value = 99999999, message = "수량은 1억 미만개여야 합니다.")
   private int quantity;
 
   @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -48,6 +43,10 @@ public class Option {
     return name;
   }
 
+  public void setProduct(Product product) {
+    this.product = product;
+  }
+
   public int getQuantity() {
     return quantity;
   }
@@ -60,6 +59,11 @@ public class Option {
     this.name = name;
     this.quantity = quantity;
     this.product = product;
+  }
+
+  public Option(String name, int quantity) {
+    this.name = name;
+    this.quantity = quantity;
   }
 
 
