@@ -66,6 +66,12 @@ public class Option {
     this.quantity = quantity;
   }
 
+  public void subtract(int quantity) {
+    if (this.quantity < quantity) {
+      throw new IllegalArgumentException("현재 재고가 부족한 상태입니다.");
+    }
+    this.quantity -= quantity;
+  }
 
   protected Option() {
 
