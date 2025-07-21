@@ -1,9 +1,13 @@
 package gift.product.dto;
 
+import gift.option.dto.OptionRequestDto;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import java.util.List;
 
 public record ProductRequestDto(
     @NotBlank(message = "상품명은 입력되어야 합니다.")
@@ -18,7 +22,11 @@ public record ProductRequestDto(
     int price,
 
     @NotBlank(message = "이미지에 대한 url은 입력되어야 합니다.")
-    String imageUrl
+    String imageUrl,
+
+    @Valid
+    @NotNull(message = "옵션은 최소 1개 이상 필요합니다")
+    List<OptionRequestDto> options
 ) {
 
 }
