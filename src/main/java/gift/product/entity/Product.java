@@ -49,6 +49,10 @@ public class Product {
     this.imageUrl = imageUrl;
   }
 
+  public List<Option> getOptions() {
+    return options;
+  }
+
   public Product(String name, int price, String imageUrl,boolean kakaoApproval) {
     this.name = name;
     this.price = price;

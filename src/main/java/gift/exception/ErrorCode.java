@@ -17,6 +17,7 @@ public enum ErrorCode {
   USER_NOT_FOUND("USER_NOT_FOUND","존재하지 않는 사용자입니다.",HttpStatus.NOT_FOUND),
   PRODUCT_NOT_FOUND("PRODUCT_NOT_FOUND","존재하지 않는 상품입니다.",HttpStatus.NOT_FOUND),
   WISH_NOT_FOUND("WISH_NOT_FOUND","위시리스트가 존재하지 않습니다.",HttpStatus.NOT_FOUND),
+  OPTION_NOT_FOUND("OPTION_NOT_FOUND","옵션이 존재하지 않습니다.",HttpStatus.NOT_FOUND),
 
   WISH_ALREADY_EXISTED("WISH_ALREADY_EXISTED","위시리스트가 이미 존재합니다.",HttpStatus.BAD_REQUEST),
 

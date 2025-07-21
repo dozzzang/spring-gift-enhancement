@@ -31,7 +31,6 @@ public class Option {
   @Size(max = 50, message = "옵션명은 50자 이하여야 합니다.")
   @NotBlank
   private String name;
-
   @Column(name = "quantity", nullable = false)
   @Min(value = 1, message = "수량은 최소 1개입니다.")
   @Max(value = 99999999, message = "수량은 1억 미만개여야 합니다.")
@@ -40,6 +39,29 @@ public class Option {
   @ManyToOne(fetch = FetchType.LAZY, optional = false)
   @JoinColumn(name = "product_id", nullable = false)
   private Product product;
+
+  public Long getId() {
+    return id;
+  }
+
+    public String getName() {
+    return name;
+  }
+
+  public int getQuantity() {
+    return quantity;
+  }
+
+  public Product getProduct() {
+    return product;
+  }
+
+  public Option(String name, int quantity, Product product) {
+    this.name = name;
+    this.quantity = quantity;
+    this.product = product;
+  }
+
 
   protected Option() {
 
