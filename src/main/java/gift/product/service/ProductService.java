@@ -1,8 +1,10 @@
 package gift.product.service;
 
 import gift.exception.KakaoApprovalException;
+import gift.exception.OptionNotFoundException;
 import gift.exception.OverlappingOptionNameException;
 import gift.exception.ProductNotFoundException;
+import gift.option.dto.OptionResponseDto;
 import gift.option.entity.Option;
 import gift.option.dto.OptionRequestDto;
 import gift.product.dto.PageRequestDto;
@@ -10,6 +12,7 @@ import gift.product.dto.ProductRequestDto;
 import gift.product.dto.ProductResponseDto;
 import gift.product.entity.Product;
 import gift.product.repository.ProductRepository;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -38,39 +41,61 @@ public class ProductService {
     return ProductResponseDto.from(product);
   }
 
-  @Transactional
-  public ProductResponseDto saveProduct(ProductRequestDto productRequestDto) {
-    validateUniqueOptionNames(productRequestDto);
+  public List<OptionResponseDto> getProductOptions(Long productId) {
+    Product product = findProductByIdOrFail(productId);
+    return product.getOptions().stream()
+        .map(OptionResponseDto::from)
+        .toList();
+  }
 
-    Product product = new Product(productRequestDto.name(), productRequestDto.price(), productRequestDto.imageUrl());
+  //TODO : View 구현 미비로 인해, view controller를 위한 임시 saveProduct 메소드
+  @Transactional
+  public ProductResponseDto saveProduct(ProductRequestDto dto) {
+    List<Option> defaultOptions = List.of(new Option("임시", 777));
+    return saveProduct(dto, defaultOptions);
+  }
+
+  @Transactional
+  public ProductResponseDto saveProduct(ProductRequestDto dto, List<Option> options) {
+    validateUniqueOptionNames(dto);
+
+    Product product = new Product(dto.name(), dto.price(), dto.imageUrl());
 
     if (product.getName().contains("카카오") && !product.isKakaoApproval()) {
       throw new KakaoApprovalException();
     }
 
-    productRequestDto.options().stream()
-        .map(optionRequest -> new Option(optionRequest.name(), optionRequest.quantity()))
-        .forEach(product::addOption);
+    options.forEach(product::addOption);
 
     Product savedProduct = productRepository.save(product);
     return ProductResponseDto.from(savedProduct);
   }
 
+  //TODO : View 구현 미비로 인해, view controller를 위한 임시 saveProduct 메소드
   @Transactional
-  public ProductResponseDto updateProduct(Long productId, ProductRequestDto productRequestDto) {
+  public ProductResponseDto updateProduct(Long productId, ProductRequestDto dto) {
+    Product existingProduct = findProductByIdOrFail(productId);
 
-    validateUniqueOptionNames(productRequestDto);
+    //고아 방지
+    List<Option> existingOptions = existingProduct.getOptions().stream()
+        .map(option -> new Option(option.getName(), option.getQuantity()))
+        .toList();
+
+    return updateProduct(productId, dto, existingOptions);
+  }
+  @Transactional
+  public ProductResponseDto updateProduct(Long productId, ProductRequestDto dto, List<Option> options) {
+    validateUniqueOptionNames(dto);
 
     Product product = findProductByIdOrFail(productId);
 
-    product.setName(productRequestDto.name());
-    product.setPrice(productRequestDto.price());
-    product.setImageUrl(productRequestDto.imageUrl());
+    product.setName(dto.name());
+    product.setPrice(dto.price());
+    product.setImageUrl(dto.imageUrl());
 
     product.getOptions().clear();
-    productRequestDto.options().stream()
-        .map(optionRequest -> new Option(optionRequest.name(), optionRequest.quantity()))
-        .forEach(product::addOption);
+
+    options.forEach(product::addOption);
 
     return ProductResponseDto.from(product);
   }

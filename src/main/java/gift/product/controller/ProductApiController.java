@@ -1,9 +1,11 @@
 package gift.product.controller;
 
+import gift.option.entity.Option;
 import gift.product.dto.ProductRequestDto;
 import gift.product.dto.ProductResponseDto;
 import gift.product.service.ProductService;
 import jakarta.validation.Valid;
+import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -33,15 +35,27 @@ public class ProductApiController {
     public ResponseEntity<ProductResponseDto> addProduct(
             @Valid @RequestBody ProductRequestDto dto
     ) {
-        return new ResponseEntity<ProductResponseDto>(productService.saveProduct(dto), HttpStatus.CREATED);
+        List<Option> options = dto.options().stream()
+            .map(optionRequest -> new Option(optionRequest.name(), optionRequest.quantity()))
+            .toList();
+
+        ProductResponseDto response = productService.saveProduct(dto, options);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PutMapping("/{productId}")
     public ResponseEntity<ProductResponseDto> updateProduct(
-            @PathVariable Long productId,
-            @Valid @RequestBody ProductRequestDto dto) {
-        return new ResponseEntity<>(productService.updateProduct(productId,dto),HttpStatus.OK);
+        @PathVariable Long productId,
+        @Valid @RequestBody ProductRequestDto dto) {
+
+        List<Option> options = dto.options().stream()
+            .map(optionRequest -> new Option(optionRequest.name(), optionRequest.quantity()))
+            .toList();
+
+        ProductResponseDto productResponsedto = productService.updateProduct(productId, dto, options);
+        return ResponseEntity.ok(productResponsedto);
     }
+
 
     @DeleteMapping("/{productId}")
     public ResponseEntity<Void> deleteProduct(@PathVariable Long productId) {
