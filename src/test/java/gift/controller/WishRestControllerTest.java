@@ -90,7 +90,7 @@ public class WishRestControllerTest {
     // given
     var token = "token";
     List<ProductResponseDto> expectedProducts = List.of(
-        new ProductResponseDto(1L, "상품1", 10000, "thisisurl", false)
+        new ProductResponseDto(1L, "상품1", 10000, "thisisurl", false, List.of())
     );
     given(wishService.getWishes(any())).willReturn(expectedProducts);
 

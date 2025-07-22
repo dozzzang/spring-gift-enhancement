@@ -14,6 +14,7 @@ import gift.product.dto.ProductResponseDto;
 import gift.product.service.ProductService;
 import gift.security.AdminInterceptor;
 import gift.user.service.UserService;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -54,7 +55,8 @@ public class ProductControllerTest {
         "평범한상품",
         10000,
         "https://thisisurl.com",
-        false
+        false,
+        List.of()
     );
 
     when(productService.saveProduct(any(ProductRequestDto.class)))
