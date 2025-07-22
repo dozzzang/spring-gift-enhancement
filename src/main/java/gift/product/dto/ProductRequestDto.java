@@ -29,4 +29,7 @@ public record ProductRequestDto(
     List<OptionRequestDto> options
 ) {
 
+    public ProductRequestDto(String name, int price, String imageUrl) {
+        this(name, price, imageUrl, List.of(new OptionRequestDto("수량(임시옵션)", 777)));
+    }
 }

@@ -1,5 +1,6 @@
 package gift.product.controller;
 
+import gift.option.dto.OptionResponseDto;
 import gift.option.entity.Option;
 import gift.product.dto.ProductRequestDto;
 import gift.product.dto.ProductResponseDto;
@@ -24,6 +25,12 @@ public class ProductApiController {
 
     public ProductApiController(ProductService productService) {
         this.productService = productService;
+    }
+
+    @GetMapping("/{productId}/options")
+    public ResponseEntity<List<OptionResponseDto>> getProductOptions(@PathVariable Long productId) {
+        List<OptionResponseDto> options = productService.getProductOptions(productId);
+        return ResponseEntity.ok(options);
     }
 
     @GetMapping("/{productId}")
