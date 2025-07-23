@@ -13,7 +13,7 @@ public record OptionRequestDto(
   @NotBlank
   String name,
   @Min(value = 1, message = "수량은 최소 1개입니다.")
-  @Max(value = 99999999, message = "수량은 1억 미만개여야 합니다.")
+  @Max(value = 99_999_999, message = "수량은 1억 미만개여야 합니다.")
   int quantity
 )
 {

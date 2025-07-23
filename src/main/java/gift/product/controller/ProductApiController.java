@@ -36,7 +36,7 @@ public class ProductApiController {
     @GetMapping("/{productId}")
     public ResponseEntity<ProductResponseDto> findProduct(
             @PathVariable Long productId) {
-        return new ResponseEntity<>(productService.findProductById(productId), HttpStatus.OK);
+        return ResponseEntity.ok(productService.findProductById(productId));
     }
     @PostMapping
     public ResponseEntity<ProductResponseDto> addProduct(
@@ -67,7 +67,7 @@ public class ProductApiController {
     @DeleteMapping("/{productId}")
     public ResponseEntity<Void> deleteProduct(@PathVariable Long productId) {
         productService.deleteProduct(productId);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return ResponseEntity.noContent().build();
     }
 
 }
