@@ -46,7 +46,8 @@ public class ProductControllerTest {
         {
         "name" : "평범한상품",
         "price" : 10000,
-        "imageUrl" : "https://thisisurl.com"
+        "imageUrl" : "https://thisisurl.com",
+        "options" : []
         }
         """;
 
@@ -80,7 +81,8 @@ public class ProductControllerTest {
         {
         "name" : "글자수가15자를초과하는상품명입니다",
         "price" : 10000,
-        "imageUrl" : "https://thisisurl.com"
+        "imageUrl" : "https://thisisurl.com",
+        "options" : []
         }
         """;
 
@@ -99,7 +101,8 @@ public class ProductControllerTest {
         {
         "name" : "$불허용특수문자상품$",
         "price" : 10000,
-        "imageUrl" : "https://thisisurl.com"
+        "imageUrl" : "https://thisisurl.com",
+        "options" : []
         }
         """;
 
@@ -118,7 +121,8 @@ public class ProductControllerTest {
         {
         "name" : "카카오주식",
         "price" : 10000,
-        "imageUrl" : "https://thisisurl.com"
+        "imageUrl" : "https://thisisurl.com",
+        "options" : []
         }
         """;
 

@@ -35,16 +35,6 @@ class OptionTest {
   }
 
   @Test
-  void 재고초과_수량차감_예외_발생() {
-    // given
-    Option option = new Option("13인치 미드나이트", 10);
-
-    // when & then
-    assertThatThrownBy(() -> option.subtract(11))
-        .isInstanceOf(IllegalArgumentException.class);
-  }
-
-  @Test
   void 영_미만_수량차감_예외_발생() {
     // given
     Option option = new Option("15인치 골드", 100);

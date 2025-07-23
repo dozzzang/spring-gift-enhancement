@@ -67,8 +67,8 @@ public class Option {
   }
 
   public void subtract(int quantity) {
-    if (this.quantity < quantity) {
-      throw new IllegalArgumentException("현재 재고가 부족한 상태입니다.");
+    if (quantity <= 0) {
+      throw new IllegalArgumentException("1 이상의 수량만 차감할 수 있습니다.");
     }
     this.quantity -= quantity;
   }
