@@ -51,7 +51,6 @@ public class ProductService {
 
   @Transactional
   public ProductResponseDto saveProduct(ProductRequestDto dto) {
-    validateUniqueOptionNames(dto);
 
     List<Option> options = dto.options().stream()
         .map(optionRequest -> new Option(optionRequest.name(), optionRequest.quantity()))
@@ -72,8 +71,6 @@ public class ProductService {
   @Transactional
   public ProductResponseDto updateProduct(Long productId, ProductRequestDto dto) {
     Product product = findProductByIdOrFail(productId);
-
-    validateUniqueOptionNames(dto);
 
     if (dto.name().contains("카카오") && !product.isKakaoApproval()) {
       throw new KakaoApprovalException();
@@ -111,18 +108,6 @@ public class ProductService {
     Product product = findProductByIdOrFail(productId);
     if (product.getName().contains("카카오") && !product.isKakaoApproval()) {
       throw new KakaoApprovalException();
-    }
-  }
-
-  private void validateUniqueOptionNames(ProductRequestDto dto) {
-    long originalCount = dto.options().size();
-    long distinctCount = dto.options().stream()
-        .map(OptionRequestDto::name)
-        .distinct()
-        .count();
-
-    if (originalCount != distinctCount) {
-      throw new OverlappingOptionNameException();
     }
   }
 }

@@ -1,5 +1,6 @@
 package gift.product.entity;
 
+import gift.exception.OverlappingOptionNameException;
 import gift.option.entity.Option;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -10,7 +11,9 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "product")
@@ -88,10 +91,18 @@ public class Product {
   }
 
   protected Product() {
+  }
 
+  private void validateUniqueOptionNames(String optionName) {
+    for(Option option : this.options) {
+      if(option.getName().equals(optionName)) {
+        throw new OverlappingOptionNameException();
+      }
+    }
   }
 
   public void addOption(Option option) {
+    validateUniqueOptionNames(option.getName());
     option.setProduct(this);
     options.add(option);
   }
