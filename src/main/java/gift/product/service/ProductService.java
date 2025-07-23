@@ -41,6 +41,7 @@ public class ProductService {
     return ProductResponseDto.from(product);
   }
 
+  @Transactional(readOnly = true)
   public List<OptionResponseDto> getProductOptions(Long productId) {
     Product product = findProductByIdOrFail(productId);
     return product.getOptions().stream()
@@ -48,16 +49,13 @@ public class ProductService {
         .toList();
   }
 
-  //TODO : View 구현 미비로 인해, view controller를 위한 임시 saveProduct 메소드
   @Transactional
   public ProductResponseDto saveProduct(ProductRequestDto dto) {
-    List<Option> defaultOptions = List.of(new Option("임시", 777));
-    return saveProduct(dto, defaultOptions);
-  }
-
-  @Transactional
-  public ProductResponseDto saveProduct(ProductRequestDto dto, List<Option> options) {
     validateUniqueOptionNames(dto);
+
+    List<Option> options = dto.options().stream()
+        .map(optionRequest -> new Option(optionRequest.name(), optionRequest.quantity()))
+        .toList();
 
     Product product = new Product(dto.name(), dto.price(), dto.imageUrl());
 
@@ -66,37 +64,32 @@ public class ProductService {
     }
 
     options.forEach(product::addOption);
-
     Product savedProduct = productRepository.save(product);
+
     return ProductResponseDto.from(savedProduct);
   }
 
-  //TODO : View 구현 미비로 인해, view controller를 위한 임시 saveProduct 메소드
   @Transactional
   public ProductResponseDto updateProduct(Long productId, ProductRequestDto dto) {
-    Product existingProduct = findProductByIdOrFail(productId);
+    Product product = findProductByIdOrFail(productId);
 
-    //고아 방지
-    List<Option> existingOptions = existingProduct.getOptions().stream()
-        .map(option -> new Option(option.getName(), option.getQuantity()))
-        .toList();
-
-    return updateProduct(productId, dto, existingOptions);
-  }
-  @Transactional
-  public ProductResponseDto updateProduct(Long productId, ProductRequestDto dto, List<Option> options) {
     validateUniqueOptionNames(dto);
 
-    Product product = findProductByIdOrFail(productId);
+    if (dto.name().contains("카카오") && !product.isKakaoApproval()) {
+      throw new KakaoApprovalException();
+    }
 
     product.setName(dto.name());
     product.setPrice(dto.price());
     product.setImageUrl(dto.imageUrl());
-
     product.getOptions().clear();
+
+    List<Option> options = dto.options().stream().map(optionRequestDto -> new Option(
+        optionRequestDto.name(), optionRequestDto.quantity())).toList();
 
     options.forEach(product::addOption);
 
+    //Dirty checking
     return ProductResponseDto.from(product);
   }
 

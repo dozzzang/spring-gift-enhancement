@@ -42,11 +42,7 @@ public class ProductApiController {
     public ResponseEntity<ProductResponseDto> addProduct(
             @Valid @RequestBody ProductRequestDto dto
     ) {
-        List<Option> options = dto.options().stream()
-            .map(optionRequest -> new Option(optionRequest.name(), optionRequest.quantity()))
-            .toList();
-
-        ProductResponseDto response = productService.saveProduct(dto, options);
+        ProductResponseDto response = productService.saveProduct(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -55,11 +51,7 @@ public class ProductApiController {
         @PathVariable Long productId,
         @Valid @RequestBody ProductRequestDto dto) {
 
-        List<Option> options = dto.options().stream()
-            .map(optionRequest -> new Option(optionRequest.name(), optionRequest.quantity()))
-            .toList();
-
-        ProductResponseDto productResponsedto = productService.updateProduct(productId, dto, options);
+        ProductResponseDto productResponsedto = productService.updateProduct(productId, dto);
         return ResponseEntity.ok(productResponsedto);
     }
 

@@ -37,15 +37,11 @@ class ProductIntegrationTest {
         new OptionRequestDto("15인치 실버", 20)
     );
 
-    List<Option> options = optionDtos.stream()
-        .map(dto -> new Option(dto.name(), dto.quantity()))
-        .toList();
-
     ProductRequestDto request = new ProductRequestDto(
         "맥북 프로", 2500000, "macbook-pro.url", optionDtos);
 
     // when
-    ProductResponseDto response = productService.saveProduct(request, options);
+    ProductResponseDto response = productService.saveProduct(request);
 
     // then
     assertThat(response.options()).hasSize(2);
@@ -72,28 +68,22 @@ class ProductIntegrationTest {
     List<OptionRequestDto> initialOptionDtos = List.of(
         new OptionRequestDto("13인치 초기 옵션", 10)
     );
-    List<Option> initialOptions = initialOptionDtos.stream()
-        .map(dto -> new Option(dto.name(), dto.quantity()))
-        .toList();
 
     ProductRequestDto initialRequest = new ProductRequestDto(
         "초기 노트북", 1000000, "initial.url", initialOptionDtos);
-    ProductResponseDto initialResponse = productService.saveProduct(initialRequest, initialOptions);
+    ProductResponseDto initialResponse = productService.saveProduct(initialRequest);
     Long productId = initialResponse.id();
 
     List<OptionRequestDto> updatedOptionDtos = List.of(
         new OptionRequestDto("13인치 스페이스 블랙", 25),
         new OptionRequestDto("15인치 골드", 15)
     );
-    List<Option> updatedOptions = updatedOptionDtos.stream()
-        .map(dto -> new Option(dto.name(), dto.quantity()))
-        .toList();
 
     ProductRequestDto updateRequest = new ProductRequestDto(
         "수정된 맥북", 2000000, "updatedMacbook.url", updatedOptionDtos);
 
     // when
-    ProductResponseDto updateResponse = productService.updateProduct(productId, updateRequest, updatedOptions);
+    ProductResponseDto updateResponse = productService.updateProduct(productId, updateRequest);
 
     // then
     assertThat(updateResponse.name()).isEqualTo("수정된 맥북");
@@ -116,13 +106,10 @@ class ProductIntegrationTest {
         new OptionRequestDto("15인치 미드나이트", 30),
         new OptionRequestDto("15인치 스페이스 그레이", 25)
     );
-    List<Option> options = optionDtos.stream()
-        .map(dto -> new Option(dto.name(), dto.quantity()))
-        .toList();
 
     ProductRequestDto request = new ProductRequestDto(
         "맥북 에어", 1500000, "macbook-air.url", optionDtos);
-    ProductResponseDto savedResponse = productService.saveProduct(request, options);
+    ProductResponseDto savedResponse = productService.saveProduct(request); // DTO만 전달
 
     // when
     ProductResponseDto response = productService.findProductById(savedResponse.id());
@@ -162,13 +149,10 @@ class ProductIntegrationTest {
         new OptionRequestDto("13인치 초기 옵션1", 30),
         new OptionRequestDto("13인치 초기 옵션2", 25)
     );
-    List<Option> initialOptions = initialOptionDtos.stream()
-        .map(dto -> new Option(dto.name(), dto.quantity()))
-        .toList();
 
     ProductRequestDto initialRequest = new ProductRequestDto(
         "테스트 노트북", 1800000, "test-notebook.url", initialOptionDtos);
-    ProductResponseDto savedResponse = productService.saveProduct(initialRequest, initialOptions);
+    ProductResponseDto savedResponse = productService.saveProduct(initialRequest);
     Long productId = savedResponse.id();
 
     Product initialProduct = productRepository.findById(productId).orElseThrow();
@@ -178,13 +162,10 @@ class ProductIntegrationTest {
     List<OptionRequestDto> newOptionDtos = List.of(
         new OptionRequestDto("15인치 새로운 옵션", 50)
     );
-    List<Option> newOptions = newOptionDtos.stream()
-        .map(dto -> new Option(dto.name(), dto.quantity()))
-        .toList();
 
     ProductRequestDto updateRequest = new ProductRequestDto(
         "수정된 노트북", 2200000, "updated-notebook.jpg", newOptionDtos);
-    productService.updateProduct(productId, updateRequest, newOptions);
+    productService.updateProduct(productId, updateRequest);
 
     // then
     Product updatedProduct = productRepository.findById(productId).orElseThrow();
